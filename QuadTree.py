@@ -47,7 +47,7 @@ class Quad_node:
     """
     coordinates: topright, bottomright, bottomleft, topleft
     children: northeast, southeast, southwest, northwest
-
+    value: cluster-value
     """
     tr = None
     br = None
@@ -59,9 +59,9 @@ class Quad_node:
     sw = None
     nw = None
 
+    value = None
 
-
-    def __init__(self, tr, br, bl, tl, ne=None, se=None, sw=None, nw=None):
+    def __init__(self, tr, br, bl, tl, ne=None, se=None, sw=None, nw=None, value=None):
         self.tr = tr
         self.br = br
         self.bl = bl
@@ -71,3 +71,5 @@ class Quad_node:
         self.se = se
         self.sw = sw
         self.nw = nw
+
+        self.value = value
