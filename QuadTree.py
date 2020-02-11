@@ -56,6 +56,14 @@ class Node:
     sw = None
     nw = None
 
+    # leaf; no children
+    def Node(self, tr, br, bl, tl):
+        self.tr = tr
+        self.br = br
+        self.bl = bl
+        self.tl = tl
+
+    # non-leaf
     def Node(self, tr, br, bl, tl, ne, se, sw, nw):
         self.tr = tr
         self.br = br
