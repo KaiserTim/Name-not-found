@@ -25,8 +25,33 @@ class ObjectMask:
         # Construct the QuadTree here
         pass
 
-    def check(self, obj, list):
-        pass
+    def check(self, obj, points):
+        if quadtree == None:
+            read(self.path)
+        # run down the tree
+        cluster = rundown(point)
+        # retrieve the values
+
+        # check for duplicates in the list of points
+
+    def rundown(self, node, point):
+        """Find the value for a given point"""
+        if node.lr == None:
+            return node.value
+        else:
+            x_mean = (node.bl + node.br) // 2
+            y_mean = (node.tl + node.tr) // 2
+            if point <= x_mean:
+                if point <= y_mean:
+                    return rundown(node.nw, point)
+                else:
+                    return rundown(node.sw, point)
+            else:
+                if point <= y_mean:
+                    return rundown(node.ne, point)
+                else:
+                    return rundown(node.se, point)
+
 
     def extract(self, obj):
         pass
