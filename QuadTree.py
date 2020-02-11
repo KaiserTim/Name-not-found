@@ -43,7 +43,7 @@ class ObjectMask:
     def hdf5_to_json(self, file):
         pass
 
-class Quad_node:
+class QuadNode:
     """
     coordinates: topright, bottomright, bottomleft, topleft
     children: northeast, southeast, southwest, northwest
