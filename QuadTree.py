@@ -2,7 +2,7 @@ import h5py
 
 class ObjectMask:
 
-    quadtree = None
+    quadtree_root = None
 
     def __init__(self, path):
         self.path = path
@@ -42,3 +42,27 @@ class ObjectMask:
 
     def hdf5_to_json(self, file):
         pass
+
+class Node:
+    # coordinates: topright, bottomright, bottomleft, topleft
+    tr = None
+    br = None
+    bl = None
+    tl = None
+
+    # children: northeast, southeast, southwest, northwest
+    ne = None
+    se = None
+    sw = None
+    nw = None
+
+    def Node(self, tr, br, bl, tl, ne, se, sw, nw):
+        self.tr = tr
+        self.br = br
+        self.bl = bl
+        self.tl = tl
+
+        self.ne = ne
+        self.se = se
+        self.sw = sw
+        self.nw = nw
