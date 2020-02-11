@@ -44,11 +44,7 @@ class ObjectMask:
         pass
 
 class Node:
-    # coordinates: topright, bottomright, bottomleft, topleft
-    tr = None
-    br = None
-    bl = None
-    tl = None
+    coords = None
 
     # children: northeast, southeast, southwest, northwest
     ne = None
@@ -56,21 +52,23 @@ class Node:
     sw = None
     nw = None
 
-    # leaf; no children
-    def Node(self, tr, br, bl, tl):
-        self.tr = tr
-        self.br = br
-        self.bl = bl
-        self.tl = tl
-
-    # non-leaf
-    def Node(self, tr, br, bl, tl, ne, se, sw, nw):
-        self.tr = tr
-        self.br = br
-        self.bl = bl
-        self.tl = tl
+    def __init__(self, coords, ne, se, sw, nw):
+        self.coords = coords
 
         self.ne = ne
         self.se = se
         self.sw = sw
         self.nw = nw
+
+class Coordinates:
+    # topright, bottomright, bottomleft, topleft
+    tr = None
+    br = None
+    bl = None
+    tl = None
+
+    def __init__(self, tr, br, bl, tl):
+        self.tr = tr
+        self.br = br
+        self.bl = bl
+        self.tl = tl
