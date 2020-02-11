@@ -1,4 +1,4 @@
-
+import h5py
 
 class QuadTree:
 
@@ -6,11 +6,14 @@ class QuadTree:
         # Constructor, no QuadTree yet
         pass
 
-    def read_json(self, file):
+    def read_json(self, path):
         # Construct the QuadTree here
         pass
 
-    def read_hdf5(self, file):
+    def read_hdf5(self, path):
+        with h5py.File(path, 'r') as f:
+            a_group_key = list(f.keys())[0]
+            data = list(f[a_group_key])
         # Construct the QuadTree here
         pass
 
