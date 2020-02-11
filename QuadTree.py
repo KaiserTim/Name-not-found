@@ -1,16 +1,24 @@
 import h5py
 
-class QuadTree:
+class ObjectMask:
 
-    def __init__(self):
-        # Constructor, no QuadTree yet
-        pass
+    quadtree = None
 
-    def read_json(self, path):
+    def __init__(self, path):
+        self.path = path
+        format = path.split(".")[-1]
+        assert format in {"json", "hdf5"}, "Wrong datatype."
+        self.format = format
+
+    def read(self, path):
+        # if else
+        # __read_json bzw. __read_hdf5
+
+    def __read_json(self, path):
         # Construct the QuadTree here
         pass
 
-    def read_hdf5(self, path):
+    def __read_hdf5(self, path):
         with h5py.File(path, 'r') as f:
             a_group_key = list(f.keys())[0]
             data = list(f[a_group_key])
