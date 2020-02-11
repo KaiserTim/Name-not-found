@@ -13,6 +13,7 @@ class ObjectMask:
     def read(self, path):
         # if else
         # __read_json bzw. __read_hdf5
+        pass
 
     def __read_json(self, path):
         # Construct the QuadTree here
@@ -28,9 +29,7 @@ class ObjectMask:
     def check(self, obj, points):
         if quadtree == None:
             read(self.path)
-        # run down the tree
-        cluster = rundown(point)
-        # retrieve the values
+        cluster_value = rundown(quad_root, point)
 
         # check for duplicates in the list of points
 
