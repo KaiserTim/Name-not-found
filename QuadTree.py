@@ -27,16 +27,20 @@ class ObjectMask:
         pass
 
     def check(self, obj, points):
+        """docstring"""
         if quadtree == None:
             read(self.path)
-        cluster_value = rundown(quad_root, point)
+        value_hist = {}
 
+        cluster_value, cluster_corners = rundown(quad_root, point)
+        # for points in cluster:
+        #   fill value_hist with entries
         # check for duplicates in the list of points
 
     def rundown(self, node, point):
         """Find the value for a given point"""
         if node.lr == None:
-            return node.value
+            return node.value, (node.tr, node.br, node.tl, node.bl)
         else:
             x_mean = (node.bl + node.br) // 2
             y_mean = (node.tl + node.tr) // 2
