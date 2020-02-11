@@ -1,5 +1,6 @@
 import h5py
 
+
 class ObjectMask:
 
     quadtree = None
@@ -10,20 +11,19 @@ class ObjectMask:
         assert format in {"json", "hdf5"}, "Wrong datatype."
         self.format = format
 
-    def read(self, path):
+    def read(self):
+        if self.format == 'json':
+            self.__read_json()
         # if else
         # __read_json bzw. __read_hdf5
 
-    def __read_json(self, path):
-        # Construct the QuadTree here
-        pass
-
-    def __read_hdf5(self, path):
-        with h5py.File(path, 'r') as f:
-            a_group_key = list(f.keys())[0]
-            data = list(f[a_group_key])
-        # Construct the QuadTree here
-        pass
+    def __read_json(self):
+        import json
+        from shapely.geometry import Polygon
+        with open(self.path) as json_file:
+            polygon_dict = json.load(json_file)
+        polygon = Polygon(polygon_dict[0]['polygon'])
+        self.quadtree = polygon
 
     def check(self, obj, list):
         pass
@@ -42,3 +42,8 @@ class ObjectMask:
 
     def hdf5_to_json(self, file):
         pass
+
+if __name__ == '__main__':
+    a = ObjectMask('data/json/bowtie.json')
+    a.read()
+    print(a.quadtree)
