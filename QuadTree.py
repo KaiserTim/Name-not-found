@@ -1,4 +1,5 @@
 import h5py
+import numpy as np
 
 class ObjectMask:
 
@@ -13,6 +14,7 @@ class ObjectMask:
     def read(self, path):
         # if else
         # __read_json bzw. __read_hdf5
+        pass
 
     def __read_json(self, path):
         # Construct the QuadTree here
@@ -20,10 +22,19 @@ class ObjectMask:
 
     def __read_hdf5(self, path):
         with h5py.File(path, 'r') as f:
-            a_group_key = list(f.keys())[0]
-            data = list(f[a_group_key])
-        # Construct the QuadTree here
-        pass
+            N, M = f["data"].shape
+            trees = []
+            grid_size = 1000
+            for j in range((M + grid_size - 1) // grid_size):
+                tmp = []
+                for i in range((N + grid_size - 1) // grid_size):
+                    #tmp.append()
+                    #f["data"][i * grid_size:(i + 1) * grid_size, j * grid_size:(j + 1) * grid_size]
+                    #Construct the QuadTree here
+                    pass
+                trees.append(tmp)
+
+
 
     def check(self, obj, list):
         pass
