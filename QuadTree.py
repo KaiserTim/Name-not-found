@@ -43,9 +43,11 @@ class ObjectMask:
 
         if np.all(data == data[0, 0]):
             node.value = data[0, 0]
+            self.obj_cluster[node.value] = (left, right, top, bottom)
             return node
 
         if depth == 0:
+            self.obj_cluster['chunks'] = (left, right, top, bottom)
             return node
 
         N, M = data.shape
