@@ -63,7 +63,7 @@ class ObjectMask:
 
         """docstring"""
 
-        if self.quad_root is None:
+        if self.root is None:
             self.read()
 
         inside = []*len(points)
@@ -107,13 +107,24 @@ class ObjectMask:
     #                 return rundown(node.se, point)
 
     def extract(self, obj_nr, path):
+        """docstring"""
         with h5py.File(path, "r") as f:
             gray_img = f[""] # was muss hier rein
-        # hist_data = {}
-        # for cluster_coords in obj_cluster[obj_nr]:
-        # Ein grosses array mit allen cluster_coords zum slicen von gray_img
-        unique, counts = numpy.unique(array, return_counts=True)
-        hist_data = dict(zip(unique, counts))
+
+        array = np.array([])
+        for cluster_coords in self.obj_cluster[obj_nr]:
+            left, right, top, bottom = cluster_coords
+            gray_cluster = gray_img[left:right, top:bottom]
+            array = np.append(array, gray_cluster.flatten())
+
+        for cluster_coords in self.obj_cluster['chunks']:
+            left, right, top, bottom = cluster_coords
+            cluster = self.data[left:right, top:bottom]
+            mask = cluster == obj_nr
+            gray_cluster = gray_img[mask]
+            array = np.append(array, gray_cluster)
+        unique, counts = np.unique(array, return_counts=True)
+        return dict(zip(unique, counts))
 
     def output_json(self, obj):
         pass
