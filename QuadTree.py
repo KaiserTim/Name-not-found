@@ -119,7 +119,7 @@ class ObjectMask:
 
         for cluster_coords in self.obj_cluster['chunks']:
             left, right, top, bottom = cluster_coords
-            cluster = self.data[left:right, top:bottom]
+            cluster = self.data[left:right, top:bottom] # Self.data muss in "read" erstellt werden
             mask = cluster == obj_nr
             gray_cluster = gray_img[mask]
             array = np.append(array, gray_cluster)
