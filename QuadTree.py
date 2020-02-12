@@ -110,7 +110,12 @@ class ObjectMask:
     #                 return rundown(node.se, point)
 
     def extract(self, obj_nr, path):
-        """docstring"""
+
+        """Extract all values belonging to Obj_nr from the grayvalue image
+        Inputs: Number of Object, path of grayvalue image
+        Output: Dictionary containing (key,value) pairs of (grayvalue, count)
+        """
+
         with h5py.File(path, "r") as f:
             gray_img = f[""] # was muss hier rein
 
