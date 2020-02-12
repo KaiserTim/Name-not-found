@@ -1,6 +1,7 @@
 import h5py
 import numpy as np
 
+
 class ObjectMask:
 
     root = None
@@ -26,12 +27,12 @@ class ObjectMask:
         with h5py.File(self.path, 'r') as f:
             N, M = f["data"].shape
 
-            #... = self.__create_tree(f["data"])
-            #grid_size = 1000
-            #for j in range((M + grid_size - 1) // grid_size):
+            # ... = self.__create_tree(f["data"])
+            # grid_size = 1000
+            # for j in range((M + grid_size - 1) // grid_size):
             #    for i in range((N + grid_size - 1) // grid_size):
-                    #f["data"][i * grid_size:(i + 1) * grid_size, j * grid_size:(j + 1) * grid_size]
-                    #Construct the QuadTree here
+            #         f["data"][i * grid_size:(i + 1) * grid_size, j * grid_size:(j + 1) * grid_size]
+            #         Construct the QuadTree here
             #        pass
 
     def __create_tree(self, data, hinge=(0,0), depth=20):
@@ -58,13 +59,12 @@ class ObjectMask:
 
         return node
 
-
     def check(self, obj_nr, points, reduced=False):
 
         """docstring"""
 
         if self.quad_root is None:
-            self.read(self.path)
+            self.read()
 
         inside = []*len(points)
         for i, point in enumerate(points):
@@ -120,6 +120,7 @@ class ObjectMask:
 
     def hdf5_to_json(self, file):
         pass
+
 
 class QuadNode:
     """
