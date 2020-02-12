@@ -66,8 +66,8 @@ class ObjectMask:
 
         """docstring"""
 
-        if self.quad_root is None:
-            self.read(self.path)
+        if self.root is None:
+            self.read()
 
         inside = []*len(points)
         for i, point in enumerate(points):
