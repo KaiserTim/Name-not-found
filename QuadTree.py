@@ -37,7 +37,7 @@ class ObjectMask:
 
             # TODO: merge trees
 
-    def __create_tree(self, data, hinge, depth=20):
+    def __create_tree(self, data, hinge=(0,0), depth=20):
 
         left, top = hinge
         right = left + data.shape[0]
@@ -53,11 +53,11 @@ class ObjectMask:
             self.obj_cluster['chunks'] = (left, right, top, bottom)
             return node
 
-        n, m = data.shape
-        node.NW = self.__create_tree(data[:n // 2, :m // 2], (left, top), depth-1)
-        node.NE = self.__create_tree(data[:n // 2, m // 2:], (left, top + m // 2), depth-1)
-        node.SW = self.__create_tree(data[n // 2:, :m // 2], (left + n // 2, top), depth-1)
-        node.SE = self.__create_tree(data[n // 2:, m // 2:], (left + n // 2, top + m // 2), depth-1)
+        N, M = data.shape
+        node.NW = self.__create_tree(data[:N // 2, :M // 2], (0, 0), depth-1)
+        node.NE = self.__create_tree(data[:N // 2, M // 2:], (0, M // 2), depth-1)
+        node.SW = self.__create_tree(data[N // 2:, :M // 2], (N // 2, 0), depth-1)
+        node.SE = self.__create_tree(data[N // 2:, M // 2:], (N // 2, M // 2), depth-1)
 
         return node
 
