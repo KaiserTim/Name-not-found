@@ -3,7 +3,7 @@ import numpy as np
 
 class ObjectMask:
 
-    quad_root = None
+    root = None
     obj_cluster = {}
 
     def __init__(self, path):
@@ -12,43 +12,70 @@ class ObjectMask:
         assert format in {"json", "hdf5"}, "Wrong datatype."
         self.format = format
 
-    def read(self, path):
-        # if else
-        # __read_json bzw. __read_hdf5
-        pass
+    def read(self):
+        if self.format == "json":
+            self.__read_json()
+        else:
+            self.__read_hdf5()
 
-    def __read_json(self, path):
+    def __read_json(self):
         # Construct the QuadTree here
         pass
 
-    def __read_hdf5(self, path):
-        with h5py.File(path, 'r') as f:
+    def __read_hdf5(self):
+        with h5py.File(self.path, 'r') as f:
             N, M = f["data"].shape
-            trees = []
-            grid_size = 1000
-            for j in range((M + grid_size - 1) // grid_size):
-                tmp = []
-                for i in range((N + grid_size - 1) // grid_size):
-                    #tmp.append()
+
+            #... = self.__create_tree(f["data"])
+            #grid_size = 1000
+            #for j in range((M + grid_size - 1) // grid_size):
+            #    for i in range((N + grid_size - 1) // grid_size):
                     #f["data"][i * grid_size:(i + 1) * grid_size, j * grid_size:(j + 1) * grid_size]
                     #Construct the QuadTree here
-                    pass
-                trees.append(tmp)
+            #        pass
+
+    def __create_tree(self, data, hinge=(0,0), depth=20):
+
+        left, top = hinge
+        right = left + data.shape[0]
+        bottom = top + data.shape[1]
+        node = QuadNode(left, right, top, bottom)
+
+        if np.all(data == data[0, 0]):
+            node.value = data[0, 0]
+            return node
+
+        if depth == 0:
+            return node
+
+        N, M = data.shape
+        node.NW = self.__create_tree(data[:N // 2, :M // 2], (0, 0), depth-1)
+        node.NE = self.__create_tree(data[:N // 2, M // 2:], (0, M // 2), depth-1)
+        node.SW = self.__create_tree(data[N // 2:, :M // 2], (N // 2, 0), depth-1)
+        node.SE = self.__create_tree(data[N // 2:, M // 2:], (N // 2, M // 2), depth-1)
+
+        return node
+
 
     def check(self, obj_nr, points, reduced=False):
+
         """docstring"""
+
         if self.quad_root is None:
             self.read(self.path)
+
         inside = []*len(points)
         for i, point in enumerate(points):
             inside[i] = self.__point_in_obj(point, obj_nr)
+
         if reduced:
             return points[inside]
-        else:
-            return inside
+        return inside
 
     def __point_in_obj(self, point, obj_nr):
+
         """docstring"""
+
         inside = False
         x, y = point
         for cluster_coords in self.obj_cluster[obj_nr]:
@@ -56,6 +83,7 @@ class ObjectMask:
             if left <= x <= right and top <= y <= bottom:
                 inside = True
                 break
+
         return inside
 
     # def rundown(self, node, point):
@@ -69,7 +97,7 @@ class ObjectMask:
     #             if point <= y_mean:
     #                 return rundown(node.nw, point)
     #             else:
-    #                 return rundown(node.sw, point)
+    #                 return rundown(node.SW, point)
     #         else:
     #             if point <= y_mean:
     #                 return rundown(node.ne, point)
@@ -98,15 +126,15 @@ class QuadNode:
     value: cluster-value
     """
 
-    def __init__(self, left, right, top, bottom, ne=None, se=None, sw=None, nw=None, value=None):
+    def __init__(self, left, right, top, bottom, NE=None, SE=None, SW=None, NW=None, value=None):
         self.left = left
         self.right = right
         self.top = top
         self.bottom = bottom
 
-        self.ne = ne
-        self.se = se
-        self.sw = sw
-        self.nw = nw
+        self.NE = NE
+        self.SE = SE
+        self.SW = SW
+        self.NW = NW
 
         self.value = value
