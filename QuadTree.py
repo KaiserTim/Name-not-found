@@ -86,6 +86,10 @@ class ObjectMask:
                 inside = True
                 break
 
+        for chunks in self.obj_cluster['chunks']:
+            #TODO
+            pass
+
         return inside
 
     # def rundown(self, node, point):
