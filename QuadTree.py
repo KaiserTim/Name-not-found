@@ -35,22 +35,28 @@ class ObjectMask:
                     pass
                 trees.append(tmp)
 
-
-
-    def check(self, obj, points):
+    def check(self, obj_nr, points, reduced=False):
         """docstring"""
-        if quadtree == None:
-            read(self.path)
-
+        if self.quad_root is None:
+            self.read(self.path)
+        inside = []*len(points)
+        for i, point in enumerate(points):
+            inside[i] = self.__point_in_obj(point, obj_nr)
+        if reduced:
+            return points[inside]
+        else:
+            return inside
 
     def __point_in_obj(self, point, obj_nr):
+        """docstring"""
         inside = False
         x, y = point
-        for cluster_coords in obj_cluster[obj_nr]:
-            if x >= left and x <= right and y <= bottom and y >= top:
+        for cluster_coords in self.obj_cluster[obj_nr]:
+            left, right, top, bottom = cluster_coords
+            if left <= x <= right and top <= y <= bottom:
                 inside = True
+                break
         return inside
-
 
     # def rundown(self, node, point):
     #     """Find the value for a given point"""
@@ -69,7 +75,6 @@ class ObjectMask:
     #                 return rundown(node.ne, point)
     #             else:
     #                 return rundown(node.se, point)
-
 
     def extract(self, obj):
         pass
