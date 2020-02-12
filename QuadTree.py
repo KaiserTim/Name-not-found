@@ -106,8 +106,14 @@ class ObjectMask:
     #             else:
     #                 return rundown(node.se, point)
 
-    def extract(self, obj):
-        pass
+    def extract(self, obj_nr, path):
+        with h5py.File(path, "r") as f:
+            gray_img = f[""] # was muss hier rein
+        # hist_data = {}
+        # for cluster_coords in obj_cluster[obj_nr]:
+        # Ein grosses array mit allen cluster_coords zum slicen von gray_img
+        unique, counts = numpy.unique(array, return_counts=True)
+        hist_data = dict(zip(unique, counts))
 
     def output_json(self, obj):
         pass
