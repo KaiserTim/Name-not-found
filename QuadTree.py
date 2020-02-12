@@ -45,16 +45,16 @@ class ObjectMask:
 
 class QuadNode:
     """
-    coordinates: topright, bottomright, bottomleft, topleft
+    coordinates: left, right, top, bottom
     children: northeast, southeast, southwest, northwest
     value: cluster-value
     """
 
-    def __init__(self, tr, br, bl, tl, ne=None, se=None, sw=None, nw=None, value=None):
-        self.tr = tr
-        self.br = br
-        self.bl = bl
-        self.tl = tl
+    def __init__(self, l, r, t, b, ne=None, se=None, sw=None, nw=None, value=None):
+        self.l = l
+        self.r = r
+        self.t = t
+        self.b = b
 
         self.ne = ne
         self.se = se
