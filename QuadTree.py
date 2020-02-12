@@ -13,6 +13,7 @@ class ObjectMask:
     def read(self, path):
         # if else
         # __read_json bzw. __read_hdf5
+        pass
 
     def __read_json(self, path):
         # Construct the QuadTree here
@@ -50,11 +51,11 @@ class QuadNode:
     value: cluster-value
     """
 
-    def __init__(self, l, r, t, b, ne=None, se=None, sw=None, nw=None, value=None):
-        self.l = l
-        self.r = r
-        self.t = t
-        self.b = b
+    def __init__(self, left, right, top, bottom, ne=None, se=None, sw=None, nw=None, value=None):
+        self.left = left
+        self.right = right
+        self.top = top
+        self.bottom = bottom
 
         self.ne = ne
         self.se = se
