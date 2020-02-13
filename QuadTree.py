@@ -48,7 +48,6 @@ class ObjectMask:
                self.__make_grid(n // 2, m // 2, (hn + n // 2, hm + m // 2))
 
     def __create_tree(self, data, hinge, depth=20):
-
         left, top = hinge
         right = left + data.shape[0] - 1
         bottom = top + data.shape[1] - 1
@@ -120,21 +119,18 @@ class ObjectMask:
         Output: Boolean parameter
         """
 
-        inside = False
         x, y = point
         for cluster_coords in self.obj_cluster[obj_nr]:
             left, right, top, bottom = cluster_coords
             if left <= x <= right and top <= y <= bottom:
-                inside = True
-                break
+                return True
 
         for chunk_coords, chunk in self.obj_cluster['chunks']:
             left, right, top, bottom = chunk_coords
             if chunk[x-left, y-top] == obj_nr:
-                inside = True
-                break
+                return True
 
-        return inside
+        return False
 
     def extract(self, obj_nr, path):
         """
@@ -165,8 +161,8 @@ class ObjectMask:
     def output_json(self, obj):
         pass
 
-    def output_hdf5(self, obj):
-        pass
+    def output_hdf5(self):
+        return self.data
 
     def json_to_hdf5(self, file):
         pass
