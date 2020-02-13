@@ -170,12 +170,17 @@ class ObjectMask:
         return self.data
 
     def json_to_hdf5(self, size=None, step_size=100):
+        """
+        can be called to create a hdf5 file from a json file
+        the resulting pixel map will be of dimension of size*size or will fit all polygons if no size is given
+        very inefficient, takes forever
+        """
         path = self.path
         output_path = path[:-5] + '_hdf5fromjson.hdf5'
 
         with open(path) as json_file:
             polygon_dict = json.load(json_file)
-        if size == None:
+        if size is None:
             lyst = [polygon_dict[i]['polygon'] for i in range(len(polygon_dict))]
             size = int(np.max(np.array(np.max(lyst))[:, 0])*1.2)
         if step_size > size:
@@ -187,7 +192,7 @@ class ObjectMask:
             for i in range(size//step_size):
                 sub_polygon = shapely.affinity.translate(polygon, xoff=-step_size*i)
                 sub_grid = rasterio.features.rasterize([(sub_polygon,1)], out_shape = (size,step_size))
-                mask[:,step_size*i:step_size*(i+1)] = sub_grid
+                mask[:,step_size*i:step_size*(i+1)] += sub_grid
                 print(i)
 
         f.close()
