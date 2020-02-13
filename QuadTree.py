@@ -1,16 +1,18 @@
 import h5py
 import numpy as np
 
+
 class ObjectMask:
     root = None
     data = None
-    obj_cluster = {}
 
-    def __init__(self, path):
+    def __init__(self, path, obj_count=1):
         self.path = path
         format = path.split(".")[-1]
         assert format in {"json", "hdf5"}, "Wrong datatype."
         self.format = format
+        self.obj_cluster = {i: [] for i in range(obj_count)}
+        self.obj_cluster['chunks'] = []
 
     def read(self):
         if self.format == "json":
@@ -54,11 +56,11 @@ class ObjectMask:
 
         if np.all(data == data[0, 0]):
             node.value = data[0, 0]
-            self.obj_cluster[node.value] = (left, right, top, bottom)
+            self.obj_cluster[node.value].append((left, right, top, bottom))
             return node
 
         if depth == 0:
-            self.obj_cluster['chunks'] = (left, right, top, bottom)
+            self.obj_cluster['chunks'].append(data[left:right+1, top:bottom+1])
             return node
 
         n, m = data.shape
@@ -156,7 +158,7 @@ class ObjectMask:
 
         for cluster_coords in self.obj_cluster['chunks']:
             left, right, top, bottom = cluster_coords
-            cluster = self.data[left:right, top:bottom]
+            cluster = self.data[left:right+1, top:bottom+1]
             mask = cluster == obj_nr
             gray_cluster = gray_img[mask]
             array = np.append(array, gray_cluster)
