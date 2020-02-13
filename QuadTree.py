@@ -34,18 +34,21 @@ class ObjectMask:
 
     def json_to_hdf5(self, size, step_size):
         path = self.path
-        output_path = path[:-4] + 'hdf5fromjson.hdf5'
+        output_path = '_hdf5fromjson.hdf5'
         f = h5py.File(output_path, "w")
         mask = f.create_dataset("maskdataset", (size,size))
         with open(path) as json_file:
             polygon_dict = json.load(json_file)
         polygon = Polygon(polygon_dict[0]['polygon'])
-
         for i in range(size//step_size):
-            mask[:,step_size*i:step_size*(i+1)] =
+            sub_polygon = shapely.affinity.translate(polygon, xoff=-step_size*i)
+            sub_grid = rasterio.features.rasterize([(sub_polygon,1)], out_shape = (size,step_size))
+            mask[:,step_size*i:step_size*(i+1)] = sub_grid
 
     def hdf5_to_json(self, file):
-        pass
+       pass
+
 
 if __name__ == '__main__':
-   pass
+    bowtie = ObjectMask('/home/steven/PycharmProjects/Name-not-found/data/json/bowtie.json')
+    bowtie.json_to_hdf5(10, 10)
