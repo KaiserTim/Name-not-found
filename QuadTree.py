@@ -49,8 +49,8 @@ class ObjectMask:
     def __create_tree(self, data, hinge, depth=20):
 
         left, top = hinge
-        right = left + data.shape[0]
-        bottom = top + data.shape[1]
+        right = left + data.shape[0] - 1
+        bottom = top + data.shape[1] - 1
         node = QuadNode(left, right, top, bottom)
 
         if np.all(data == data[0, 0]):
@@ -139,7 +139,7 @@ class ObjectMask:
         array = np.array([])
         for cluster_coords in self.obj_cluster[obj_nr]:
             left, right, top, bottom = cluster_coords
-            gray_cluster = gray_img[left:right, top:bottom]
+            gray_cluster = gray_img[left:right+1, top:bottom+1]
             array = np.append(array, gray_cluster.flatten())
 
         for cluster_coords in self.obj_cluster['chunks']:
