@@ -24,6 +24,8 @@ class ObjectMask:
             self.__read_hdf5()
 
     def __read_json(self):
+
+
         self.json_to_hdf5()
         self.path = self.path[:-5] + '_hdf5fromjson.hdf5'
         self.__read_hdf5()
@@ -199,7 +201,7 @@ class ObjectMask:
             for i in range(size//step_size):
                 sub_polygon = shapely.affinity.translate(polygon, xoff=-step_size*i)
                 sub_grid = rasterio.features.rasterize([(sub_polygon, 1)], out_shape=(size, step_size))
-                mask[:, step_size*i:step_size*(i+1)] = sub_grid
+                mask[:, step_size*i:step_size*(i+1)] += sub_grid
 
         f.close()
 
