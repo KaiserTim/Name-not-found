@@ -175,13 +175,13 @@ class ObjectMask:
 
         with open(path) as json_file:
             polygon_dict = json.load(json_file)
-        if size == None:
+        if size is None:
             lyst = [polygon_dict[i]['polygon'] for i in range(len(polygon_dict))]
             size = int(np.max(np.array(np.max(lyst))[:, 0])*1.2)
         if step_size > size:
             step_size = size
         f = h5py.File(output_path, "w")
-        mask = f.create_dataset("maskdataset", (size, size))
+        mask = f.create_dataset("data", (size, size))
         for j in range(len(polygon_dict)):
             polygon = Polygon(polygon_dict[j]['polygon'])
             for i in range(size//step_size):
