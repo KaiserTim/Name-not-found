@@ -5,6 +5,7 @@ import numpy as np
 class ObjectMask:
 
     root = None
+    data = None
     obj_cluster = {}
 
     def __init__(self, path):
@@ -61,7 +62,6 @@ class ObjectMask:
         node.SE = self.__create_tree(data[N // 2:, M // 2:], (N // 2, M // 2), depth-1)
 
         return node
-
 
     def check(self, obj_nr, points, reduced=False):
 
@@ -128,13 +128,13 @@ class ObjectMask:
 
         for cluster_coords in self.obj_cluster['chunks']:
             left, right, top, bottom = cluster_coords
-            cluster = self.data[left:right, top:bottom] # Self.data muss in "read" erstellt werden
+            cluster = self.data[left:right, top:bottom]
             mask = cluster == obj_nr
             gray_cluster = gray_img[mask]
             array = np.append(array, gray_cluster)
+
         unique, counts = np.unique(array, return_counts=True)
         return dict(zip(unique, counts))
-
 
     def output_json(self, obj):
         pass
