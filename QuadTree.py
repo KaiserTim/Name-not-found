@@ -2,8 +2,8 @@ import h5py
 import numpy as np
 
 class ObjectMask:
-
     root = None
+    data = None
     obj_cluster = {}
     data = None
 
@@ -25,17 +25,28 @@ class ObjectMask:
 
     def __read_hdf5(self):
         with h5py.File(self.path, 'r') as f:
-            N, M = f["data"].shape
+            self.data = f["data"]
+            n, m = self.data.shape
+            grid = [(0, 0)] + self.__make_grid(n, m) + [(n, m)]
+            trees = []
+            for i in range(len(grid) - 1):
+                tmp = []
+                for j in range(len(grid) - 1):
+                    tmp.append(self.__create_tree(self.data[grid[i]:grid[i + 1], grid[j]:grid[j + 1]], (grid[i], grid[j])))
+                trees.append(tmp)
+            self.root = self.__merge_trees(np.array(trees))
 
-            #... = self.__create_tree(f["data"])
-            #grid_size = 1000
-            #for j in range((M + grid_size - 1) // grid_size):
-            #    for i in range((N + grid_size - 1) // grid_size):
-                    #f["data"][i * grid_size:(i + 1) * grid_size, j * grid_size:(j + 1) * grid_size]
-                    #Construct the QuadTree here
-            #        pass
+    def __make_grid(self, n, m, hinge=(0, 0), max_size=1000):
+        hn, hm = hinge
 
-    def __create_tree(self, data, hinge=(0,0), depth=20):
+        if n <= max_size and m <= max_size:
+            return []
+
+        return self.__make_grid(n // 2, m // 2, (hn, hm)) + \
+               [(hn + n // 2, hm + m // 2)] + \
+               self.__make_grid(n // 2, m // 2, (hn + n // 2, hm + m // 2))
+
+    def __create_tree(self, data, hinge, depth=20):
 
         left, top = hinge
         right = left + data.shape[0]
@@ -51,23 +62,44 @@ class ObjectMask:
             self.obj_cluster['chunks'] = (left, right, top, bottom)
             return node
 
-        N, M = data.shape
-        node.NW = self.__create_tree(data[:N // 2, :M // 2], (0, 0), depth-1)
-        node.NE = self.__create_tree(data[:N // 2, M // 2:], (0, M // 2), depth-1)
-        node.SW = self.__create_tree(data[N // 2:, :M // 2], (N // 2, 0), depth-1)
-        node.SE = self.__create_tree(data[N // 2:, M // 2:], (N // 2, M // 2), depth-1)
+        n, m = data.shape
+        node.NW = self.__create_tree(data[:n // 2, :m // 2], (left, top), depth - 1)
+        node.NE = self.__create_tree(data[:n // 2, m // 2:], (left, top + m // 2), depth - 1)
+        node.SW = self.__create_tree(data[n // 2:, :m // 2], (left + n // 2, top), depth - 1)
+        node.SE = self.__create_tree(data[n // 2:, m // 2:], (left + n // 2, top + m // 2), depth - 1)
 
         return node
 
+    def __merge_trees(self, trees):
+        left = trees[0, 0].left
+        top = trees[0, 0].top
+        right = trees[-1, -1].right
+        bottom = trees[-1, -1].bottom
+        node = QuadNode(left, right, top, bottom)
+
+        if trees.shape == (4, 4):
+            node.NW = trees[0, 0]
+            node.NE = trees[0, 1]
+            node.SW = trees[1, 0]
+            node.SE = trees[1, 1]
+
+            return node
+
+        n, m = trees.shape
+        node.NW = self.__merge_trees(trees[:n // 2, :m // 2])
+        node.NE = self.__merge_trees(trees[:n // 2, m // 2:])
+        node.SW = self.__merge_trees(trees[n // 2:, :m // 2])
+        node.SE = self.__merge_trees(trees[n // 2:, m // 2:])
+
+        return node
 
     def check(self, obj_nr, points, reduced=False):
-
         """docstring"""
 
-        if self.quad_root is None:
-            self.read(self.path)
+        if self.root is None:
+            self.read()
 
-        inside = []*len(points)
+        inside = [] * len(points)
         for i, point in enumerate(points):
             inside[i] = self.__point_in_obj(point, obj_nr)
             inside[i] = self.data[point] == obj_nr
@@ -77,7 +109,6 @@ class ObjectMask:
         return inside
 
     def __point_in_obj(self, point, obj_nr):
-
         """docstring"""
 
         inside = False
@@ -127,6 +158,7 @@ class ObjectMask:
 
     def hdf5_to_json(self, file):
         pass
+
 
 class QuadNode:
     """
