@@ -121,24 +121,6 @@ class ObjectMask:
 
         return inside
 
-    # def rundown(self, node, point):
-    #     """Find the value for a given point"""
-    #     if node.lr == None:
-    #         return node.value, (node.tr, node.br, node.tl, node.bl)
-    #     else:
-    #         x_mean = (node.bl + node.br) // 2
-    #         y_mean = (node.tl + node.tr) // 2
-    #         if point <= x_mean:
-    #             if point <= y_mean:
-    #                 return rundown(node.nw, point)
-    #             else:
-    #                 return rundown(node.SW, point)
-    #         else:
-    #             if point <= y_mean:
-    #                 return rundown(node.ne, point)
-    #             else:
-    #                 return rundown(node.se, point)
-
     def extract(self, obj_nr, path):
 
         """
