@@ -5,6 +5,7 @@ class ObjectMask:
 
     root = None
     obj_cluster = {}
+    data = None
 
     def __init__(self, path):
         self.path = path
@@ -69,6 +70,7 @@ class ObjectMask:
         inside = []*len(points)
         for i, point in enumerate(points):
             inside[i] = self.__point_in_obj(point, obj_nr)
+            inside[i] = self.data[point] == obj_nr
 
         if reduced:
             return points[inside]
@@ -86,9 +88,10 @@ class ObjectMask:
                 inside = True
                 break
 
-        for chunks in self.obj_cluster['chunks']:
-            #TODO
-            pass
+        for chunk in self.obj_cluster['chunks']:
+            if chunk[x, y] == obj_nr:
+                inside = True
+                break
 
         return inside
 
