@@ -145,7 +145,7 @@ class ObjectMask:
         """
 
         with h5py.File(path, "r") as f:
-            gray_img = f[""]  # was muss hier rein
+            gray_img = f["data"]
 
         array = np.array([])
         for cluster_coords in self.obj_cluster[obj_nr]:
