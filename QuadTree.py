@@ -30,15 +30,15 @@ class ObjectMask:
         self.__read_hdf5()
 
     def __read_hdf5(self):
-        with h5py.File(self.path, 'r') as f:
-            self.data = f["data"]
+        f = h5py.File(self.path, 'r')
+        self.data = f["data"]
         n, m = self.data.shape
         grid = [(0, 0)] + self.__make_grid(n, m) + [(n, m)]
         trees = []
         for i in range(len(grid) - 1):
             tmp = []
             for j in range(len(grid) - 1):
-                tmp.append(self.__create_tree(self.data[grid[i]:grid[i + 1], grid[j]:grid[j + 1]], (grid[i], grid[j])))
+                tmp.append(self.__create_tree(self.data[grid[i][0]:grid[i + 1][0], grid[j][1]:grid[j + 1][1]], (grid[i][0], grid[j][1])))
             trees.append(tmp)
         self.root = self.__merge_trees(np.array(trees))
 
@@ -58,6 +58,11 @@ class ObjectMask:
         bottom = top + data.shape[1] - 1
         node = QuadNode(left, right, top, bottom)
 
+        n, m = data.shape
+        if n <= 2 or m <= 2:
+            self.obj_cluster['chunks'].append((left, right, top, bottom), data[left:right+1, top:bottom+1])
+            return node
+
         if np.all(data == data[0, 0]):
             node.value = data[0, 0]
             self.obj_cluster[node.value].append((left, right, top, bottom))
@@ -67,7 +72,6 @@ class ObjectMask:
             self.obj_cluster['chunks'].append((left, right, top, bottom), data[left:right+1, top:bottom+1])
             return node
 
-        n, m = data.shape
         node.NW = self.__create_tree(data[:n // 2, :m // 2], (left, top), depth - 1)
         node.NE = self.__create_tree(data[:n // 2, m // 2:], (left, top + m // 2), depth - 1)
         node.SW = self.__create_tree(data[n // 2:, :m // 2], (left + n // 2, top), depth - 1)
