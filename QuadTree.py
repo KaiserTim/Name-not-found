@@ -174,7 +174,13 @@ class ObjectMask:
         return self.data
 
     def json_to_hdf5(self, size=None, step_size=100):
-        output_path = self.path[:-5] + '_hdf5fromjson.hdf5'
+        """
+        can be called to create a hdf5 file from a json file
+        the resulting pixel map will be of dimension of size*size or will fit all polygons if no size is given
+        very inefficient, takes forever
+        """
+        path = self.path
+        output_path = path[:-5] + '_hdf5fromjson.hdf5'
 
         with open(self.path) as json_file:
             polygon_dict = json.load(json_file)
