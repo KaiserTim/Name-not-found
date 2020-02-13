@@ -1,5 +1,9 @@
+import json
 import h5py
-
+import numpy as np
+from shapely.geometry import Polygon
+import rasterio.features
+import shapely.affinity
 
 class ObjectMask:
 
@@ -18,16 +22,7 @@ class ObjectMask:
         # __read_json bzw. __read_hdf5
 
     def __read_json(self):
-        import json
-        from shapely.geometry import Polygon
-        with open(self.path) as json_file:
-            polygon_dict = json.load(json_file)
-        polygon = Polygon(polygon_dict[0]['polygon'])
-        self.quadtree = polygon
-
-    def check(self, obj, list):
-        pass
-
+       pass
     def extract(self, obj):
         pass
 
@@ -37,13 +32,20 @@ class ObjectMask:
     def output_hdf5(self, obj):
         pass
 
-    def json_to_hdf5(self, file):
-        pass
+    def json_to_hdf5(self, size, step_size):
+        path = self.path
+        output_path = path[:-4] + 'hdf5fromjson.hdf5'
+        f = h5py.File(output_path, "w")
+        mask = f.create_dataset("maskdataset", (size,size))
+        with open(path) as json_file:
+            polygon_dict = json.load(json_file)
+        polygon = Polygon(polygon_dict[0]['polygon'])
+
+        for i in range(size//step_size):
+            mask[:,step_size*i:step_size*(i+1)] =
 
     def hdf5_to_json(self, file):
         pass
 
 if __name__ == '__main__':
-    a = ObjectMask('data/json/bowtie.json')
-    a.read()
-    print(a.quadtree)
+   pass
