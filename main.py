@@ -18,9 +18,10 @@ if __name__ == '__main__':
         for j in range(y_offset, y_offset + n):
             a.append(i)
     b = list(range(x_offset, x_offset + n))*m
-    points = list(zip(b,a))
-    print(points[:10])
+    #points = list(zip(b,a))
     points = np.load("B01_0361_annotations_si_spacing1.npz", allow_pickle=True)["arr_0"]
+    print(points[:10])
+
 
     print(quadtree.check(obj_nr=1, points=points))
     print("Points checked", time.time()-start_time)
