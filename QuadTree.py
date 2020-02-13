@@ -25,15 +25,18 @@ class ObjectMask:
 
     def __read_hdf5(self):
         with h5py.File(self.path, 'r') as f:
-            N, M = f["data"].shape
+            dset = f["data"]
+            n, m = dset.shape
+            grid_size = 1000
+            trees = []
+            for i in range((n + grid_size - 1) // grid_size):
+                tmp = []
+                for j in range((m + grid_size - 1) // grid_size):
+                    tmp.append(self.__create_tree(dset[i * grid_size:(i + 1) * grid_size, j * grid_size:(j + 1) * grid_size],
+                                                  (i * grid_size, j * grid_size)))
+                trees.append(tmp)
 
-            # ... = self.__create_tree(f["data"])
-            # grid_size = 1000
-            # for j in range((M + grid_size - 1) // grid_size):
-            #    for i in range((N + grid_size - 1) // grid_size):
-            #         f["data"][i * grid_size:(i + 1) * grid_size, j * grid_size:(j + 1) * grid_size]
-            #         Construct the QuadTree here
-            #        pass
+            # TODO: merge trees
 
     def __create_tree(self, data, hinge=(0,0), depth=20):
 
@@ -58,6 +61,7 @@ class ObjectMask:
         node.SE = self.__create_tree(data[N // 2:, M // 2:], (N // 2, M // 2), depth-1)
 
         return node
+
 
     def check(self, obj_nr, points, reduced=False):
 
@@ -106,8 +110,25 @@ class ObjectMask:
     #             else:
     #                 return rundown(node.se, point)
 
-    def extract(self, obj):
-        pass
+    def extract(self, obj_nr, path):
+        """docstring"""
+        with h5py.File(path, "r") as f:
+            gray_img = f[""] # was muss hier rein
+
+        array = np.array([])
+        for cluster_coords in self.obj_cluster[obj_nr]:
+            left, right, top, bottom = cluster_coords
+            gray_cluster = gray_img[left:right, top:bottom]
+            array = np.append(array, gray_cluster.flatten())
+
+        for cluster_coords in self.obj_cluster['chunks']:
+            left, right, top, bottom = cluster_coords
+            cluster = self.data[left:right, top:bottom] # Self.data muss in "read" erstellt werden
+            mask = cluster == obj_nr
+            gray_cluster = gray_img[mask]
+            array = np.append(array, gray_cluster)
+        unique, counts = np.unique(array, return_counts=True)
+        return dict(zip(unique, counts))
 
     def output_json(self, obj):
         pass
