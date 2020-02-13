@@ -134,7 +134,7 @@ class ObjectMask:
         inside = [False] * len(points)
         for i, point in enumerate(points):
             value = self.__rundown(self.root, point)
-            # print("Checkvalue", value)
+            print("Checkvalue", value)
             if value == obj_nr:
                 inside[i] = True
 
@@ -152,7 +152,7 @@ class ObjectMask:
         left, right, top, bottom = node.left, node.right, node.top, node.bottom
         x, y = point
         if node.NW is None:
-            # print("hi", node.value)
+            print("hi", node.value, node.left, node.right, node.top, node.bottom)
             if type(node.value) is not None:
                 return node.value
             else:
