@@ -72,7 +72,6 @@ class ObjectMask:
 
         return node
 
-
     def check(self, obj_nr, points, reduced=False):
 
         """
