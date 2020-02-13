@@ -186,7 +186,7 @@ class ObjectMask:
         if step_size > size:
             step_size = size
         f = h5py.File(output_path, "w")
-        mask = f.create_dataset("maskdataset", (size, size))
+        mask = f.create_dataset("data", (size, size))
         for j in range(len(polygon_dict)):
             polygon = Polygon(polygon_dict[j]['polygon'])
             for i in range(size//step_size):
