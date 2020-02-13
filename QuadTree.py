@@ -137,8 +137,32 @@ class ObjectMask:
     #             else:
     #                 return rundown(node.se, point)
 
-    def extract(self, obj):
-        pass
+    def extract(self, obj_nr, path):
+
+        """
+        Extract all values belonging to obj_nr from the grayvalue image
+        Inputs: Number of object, path of grayvalue image
+        Output: Dictionary containing (key,value) pairs of (grayvalue, count)
+        """
+
+        with h5py.File(path, "r") as f:
+            gray_img = f[""]  # was muss hier rein
+
+        array = np.array([])
+        for cluster_coords in self.obj_cluster[obj_nr]:
+            left, right, top, bottom = cluster_coords
+            gray_cluster = gray_img[left:right, top:bottom]
+            array = np.append(array, gray_cluster.flatten())
+
+        for cluster_coords in self.obj_cluster['chunks']:
+            left, right, top, bottom = cluster_coords
+            cluster = self.data[left:right, top:bottom]
+            mask = cluster == obj_nr
+            gray_cluster = gray_img[mask]
+            array = np.append(array, gray_cluster)
+
+        unique, counts = np.unique(array, return_counts=True)
+        return dict(zip(unique, counts))
 
     def output_json(self, obj):
         pass
