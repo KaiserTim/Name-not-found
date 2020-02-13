@@ -51,7 +51,7 @@ class ObjectMask:
                [(hn + n // 2, hm + m // 2)] + \
                self.__make_grid(n // 2, m // 2, (hn + n // 2, hm + m // 2))
 
-    def __create_tree(self, data, hinge, depth=10):
+    def __create_tree(self, data, hinge, depth=5):
         left, top = hinge
         right = left + data.shape[0] - 1
         bottom = top + data.shape[1] - 1
@@ -115,7 +115,7 @@ class ObjectMask:
         if self.root is None:
             self.read()
 
-        inside = [] * len(points)
+        inside = [None] * len(points)
         for i, point in enumerate(points):
             inside[i] = self.__point_in_obj(obj_nr, point)
 
@@ -138,8 +138,9 @@ class ObjectMask:
 
         for chunk_coords, chunk in self.obj_cluster['chunks']:
             left, right, top, bottom = chunk_coords
-            if chunk[x-left, y-top] == obj_nr:
-                return True
+            if left <= x <= right and top <= y <= bottom:
+                if chunk[x-left, y-top] == obj_nr:
+                    return True
 
         return False
 

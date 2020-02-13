@@ -5,4 +5,4 @@ if __name__ == '__main__':
     quadtree = QuadTree.ObjectMask(path=path)
     quadtree.read()
     points = [(5,2)]
-    quadtree.check(obj_nr=1, points=points)
+    print(quadtree.check(obj_nr=1, points=points))
