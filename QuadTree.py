@@ -5,6 +5,7 @@ from shapely.geometry import Polygon
 import rasterio.features
 import shapely.affinity
 
+
 class ObjectMask:
     root = None
     data = None
@@ -24,11 +25,9 @@ class ObjectMask:
             self.__read_hdf5()
 
     def __read_json(self):
-       self.json_to_hdf5()
-       self.path = path[:-5] + '_hdf5fromjson.hdf5'
-       self.__read_hdf5()
-    def extract(self, obj):
-        pass
+        self.json_to_hdf5()
+        self.path = path[:-5] + '_hdf5fromjson.hdf5'
+        self.__read_hdf5()
 
     def __read_hdf5(self):
         with h5py.File(self.path, 'r') as f:
@@ -170,9 +169,6 @@ class ObjectMask:
     def output_hdf5(self):
         return self.data
 
-    def json_to_hdf5(self, file):
-        pass
-
     def json_to_hdf5(self, size=None, step_size=100):
         path = self.path
         output_path = path[:-5] + '_hdf5fromjson.hdf5'
@@ -195,6 +191,7 @@ class ObjectMask:
                 print(i)
 
         f.close()
+
     def hdf5_to_json(self, file):
         pass
 
