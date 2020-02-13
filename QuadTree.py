@@ -38,8 +38,7 @@ class ObjectMask:
             for i in range(len(grid) - 1):
                 tmp = []
                 for j in range(len(grid) - 1):
-                    tmp.append(
-                        self.__create_tree(self.data[grid[i]:grid[i + 1], grid[j]:grid[j + 1]], (grid[i], grid[j])))
+                    tmp.append(self.__create_tree(self.data[grid[i]:grid[i + 1], grid[j]:grid[j + 1]], (grid[i], grid[j])))
                 trees.append(tmp)
             self.root = self.__merge_trees(np.array(trees))
 
@@ -65,7 +64,7 @@ class ObjectMask:
             return node
 
         if depth == 0:
-            self.obj_cluster['chunks'].append((left, right, top, bottom), data[left:right + 1, top:bottom + 1])
+            self.obj_cluster['chunks'].append((left, right, top, bottom), data[left:right+1, top:bottom+1])
             return node
 
         n, m = data.shape
@@ -133,7 +132,7 @@ class ObjectMask:
 
         for chunk_coords, chunk in self.obj_cluster['chunks']:
             left, right, top, bottom = chunk_coords
-            if chunk[x - left, y - top] == obj_nr:
+            if chunk[x-left, y-top] == obj_nr:
                 return True
 
         return False
@@ -151,12 +150,12 @@ class ObjectMask:
         array = np.array([])
         for cluster_coords in self.obj_cluster[obj_nr]:
             left, right, top, bottom = cluster_coords
-            gray_cluster = gray_img[left:right + 1, top:bottom + 1]
+            gray_cluster = gray_img[left:right+1, top:bottom+1]
             array = np.append(array, gray_cluster.flatten())
 
         for cluster_coords in self.obj_cluster['chunks']:
             left, right, top, bottom = cluster_coords
-            cluster = self.data[left:right + 1, top:bottom + 1]
+            cluster = self.data[left:right+1, top:bottom+1]
             mask = cluster == obj_nr
             gray_cluster = gray_img[mask]
             array = np.append(array, gray_cluster)
@@ -183,17 +182,18 @@ class ObjectMask:
             polygon_dict = json.load(json_file)
         if size is None:
             lyst = [polygon_dict[i]['polygon'] for i in range(len(polygon_dict))]
-            size = int(np.max(np.array(np.max(lyst))[:, 0]) * 1.2)
+            size = int(np.max(np.array(np.max(lyst))[:, 0])*1.2)
         if step_size > size:
             step_size = size
         f = h5py.File(output_path, "w")
-        mask = f.create_dataset("data", (size, size))
+        mask = f.create_dataset("maskdataset", (size, size))
         for j in range(len(polygon_dict)):
             polygon = Polygon(polygon_dict[j]['polygon'])
-            for i in range(size // step_size):
-                sub_polygon = shapely.affinity.translate(polygon, xoff=-step_size * i)
-                sub_grid = rasterio.features.rasterize([(sub_polygon, 1)], out_shape=(size, step_size))
-                mask[:, step_size * i:step_size * (i + 1)] += sub_grid
+            for i in range(size//step_size):
+                sub_polygon = shapely.affinity.translate(polygon, xoff=-step_size*i)
+                sub_grid = rasterio.features.rasterize([(sub_polygon,1)], out_shape = (size,step_size))
+                mask[:,step_size*i:step_size*(i+1)] += sub_grid
+
 
         f.close()
 
@@ -220,8 +220,6 @@ class QuadNode:
         self.NW = NW
 
         self.value = value
-
-
 if __name__ == '__main__':
     a = ObjectMask('/home/steven/PycharmProjects/Name-not-found/data/json/B01_0361_annotations.json')
     a.json_to_hdf5(step_size=10)
