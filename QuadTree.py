@@ -1,6 +1,7 @@
 import h5py
 import numpy as np
 
+
 class ObjectMask:
     root = None
     data = None
@@ -59,7 +60,7 @@ class ObjectMask:
             return node
 
         if depth == 0:
-            self.obj_cluster['chunks'].append(data[left:right+1, top:bottom+1])
+            self.obj_cluster['chunks'].append((left, right, top, bottom), data[left:right+1, top:bottom+1])
             return node
 
         n, m = data.shape
@@ -118,8 +119,8 @@ class ObjectMask:
                 inside = True
                 break
 
-        for chunk in self.obj_cluster['chunks']:
-            if chunk[x, y] == obj_nr:
+        for chunk_coords, chunk in self.obj_cluster['chunks']:
+            if chunk[x-left, y-top] == obj_nr:
                 inside = True
                 break
 
