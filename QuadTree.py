@@ -1,9 +1,7 @@
 import h5py
 import numpy as np
 
-
 class ObjectMask:
-
     root = None
     data = None
     obj_cluster = {}
@@ -35,8 +33,7 @@ class ObjectMask:
                 for j in range(len(grid) - 1):
                     tmp.append(self.__create_tree(self.data[grid[i]:grid[i + 1], grid[j]:grid[j + 1]], (grid[i], grid[j])))
                 trees.append(tmp)
-
-            # TODO: merge trees
+            self.root = self.__merge_trees(np.array(trees))
 
     def __make_grid(self, n, m, hinge=(0, 0), max_size=1000):
         hn, hm = hinge
@@ -72,19 +69,36 @@ class ObjectMask:
 
         return node
 
-    def check(self, obj_nr, points, reduced=False):
+    def __merge_trees(self, trees):
+        left = trees[0, 0].left
+        top = trees[0, 0].top
+        right = trees[-1, -1].right
+        bottom = trees[-1, -1].bottom
+        node = QuadNode(left, right, top, bottom)
 
-        """
-        Check if a list of points is inside a given object individually
-        Inputs: Number of object, list of points, output-parameter
-        Output: reduced=False: Boolean list with results
-                reduced=True : List of points which are inside of the object
-        """
+        if trees.shape == (4, 4):
+            node.NW = trees[0, 0]
+            node.NE = trees[0, 1]
+            node.SW = trees[1, 0]
+            node.SE = trees[1, 1]
+
+            return node
+
+        n, m = trees.shape
+        node.NW = self.__merge_trees(trees[:n // 2, :m // 2])
+        node.NE = self.__merge_trees(trees[:n // 2, m // 2:])
+        node.SW = self.__merge_trees(trees[n // 2:, :m // 2])
+        node.SE = self.__merge_trees(trees[n // 2:, m // 2:])
+
+        return node
+
+    def check(self, obj_nr, points, reduced=False):
+        """docstring"""
 
         if self.root is None:
             self.read()
 
-        inside = []*len(points)
+        inside = [] * len(points)
         for i, point in enumerate(points):
             inside[i] = self.__point_in_obj(point, obj_nr)
 
@@ -92,13 +106,8 @@ class ObjectMask:
             return points[inside]
         return inside
 
-    def __point_in_obj(self, obj_nr, point):
-
-        """
-        Check if a single point is inside of a given object
-        Inputs: Point as tuple of coordinates, number of object
-        Ouput: Result as boolean variable
-        """
+    def __point_in_obj(self, point, obj_nr):
+        """docstring"""
 
         inside = False
         x, y = point
@@ -128,32 +137,8 @@ class ObjectMask:
     #             else:
     #                 return rundown(node.se, point)
 
-    def extract(self, obj_nr, path):
-
-        """
-        Extract all values belonging to obj_nr from the grayvalue image
-        Inputs: Number of object, path of grayvalue image
-        Output: Dictionary containing (key,value) pairs of (grayvalue, count)
-        """
-
-        with h5py.File(path, "r") as f:
-            gray_img = f[""] # was muss hier rein
-
-        array = np.array([])
-        for cluster_coords in self.obj_cluster[obj_nr]:
-            left, right, top, bottom = cluster_coords
-            gray_cluster = gray_img[left:right, top:bottom]
-            array = np.append(array, gray_cluster.flatten())
-
-        for cluster_coords in self.obj_cluster['chunks']:
-            left, right, top, bottom = cluster_coords
-            cluster = self.data[left:right, top:bottom]
-            mask = cluster == obj_nr
-            gray_cluster = gray_img[mask]
-            array = np.append(array, gray_cluster)
-
-        unique, counts = np.unique(array, return_counts=True)
-        return dict(zip(unique, counts))
+    def extract(self, obj):
+        pass
 
     def output_json(self, obj):
         pass
