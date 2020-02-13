@@ -119,15 +119,43 @@ class ObjectMask:
 
         inside = [None] * len(points)
         for i, point in enumerate(points):
-            inside[i] = self.__point_in_obj(obj_nr, point)
+            value = self.__rundown(self.root, point)
+            inside[i] = value == obj_nr
 
         if reduced:
             return points[inside]
         return inside
 
+    def __rundown(self, node, point):
+        """
+        Find the value for a given point (fast version of point_in_object)
+        Inputs: Current node to propagate, point to check
+        Output:
+        """
+        left, right, top, bottom = node.left, node.right, node.top, node.bottom
+        x, y = point
+        if node.NW is None:
+            if node.value is None:
+                return chunk[x-left, y-top]
+            else:
+                return node.value
+        else:
+            x_mean = (left + right) // 2
+            y_mean = (top + bottom) // 2
+            if x <= x_mean:
+                if y <= y_mean:
+                    return self.__rundown(node.NW, point)
+                else:
+                    return self.__rundown(node.SW, point)
+            else:
+                if y <= y_mean:
+                    return self.__rundown(node.NE, point)
+                else:
+                    return self.__rundown(node.SE, point)
+
     def __point_in_obj(self, obj_nr, point):
         """
-        Check if a single point is inside a given object
+        Check if a single point is inside a given object (very slow!)
         Inputs: Number of object, point to check
         Output: Boolean parameter
         """

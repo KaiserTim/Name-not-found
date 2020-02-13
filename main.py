@@ -1,10 +1,14 @@
 import QuadTree
+import time
 
 if __name__ == '__main__':
-    path = "/home/steven/PycharmProjects/Name-not-found/data/json/B01_0361_annotations_si.json"
+    start_time = time.time()
+    print("Start")
+    path = "data/hdf5_image/B01_0361_annotations_si_spacing1.hdf5"
     quadtree = QuadTree.ObjectMask(path=path)
     quadtree.read()
-    n, m = 100, 100
+    print("Tree constructed", time.time() - start_time)
+    n, m = 10, 10
     x_offset = 1000
     y_offset = 1000
     a = []
@@ -14,4 +18,7 @@ if __name__ == '__main__':
     b = list(range(x_offset, x_offset + n))*m
     points = list(zip(b,a))
     print(points[:10])
+
     print(quadtree.check(obj_nr=1, points=points))
+    print("Points checked", time.time()-start_time)
+
