@@ -1,16 +1,18 @@
 import h5py
 import numpy as np
 
+
 class ObjectMask:
     root = None
     data = None
-    obj_cluster = {}
 
-    def __init__(self, path):
+    def __init__(self, path, obj_count=1):
         self.path = path
         format = path.split(".")[-1]
         assert format in {"json", "hdf5"}, "Wrong datatype."
         self.format = format
+        self.obj_cluster = {i: [] for i in range(obj_count)}
+        self.obj_cluster['chunks'] = []
 
     def read(self):
         if self.format == "json":
@@ -46,19 +48,18 @@ class ObjectMask:
                self.__make_grid(n // 2, m // 2, (hn + n // 2, hm + m // 2))
 
     def __create_tree(self, data, hinge, depth=20):
-
         left, top = hinge
-        right = left + data.shape[0]
-        bottom = top + data.shape[1]
+        right = left + data.shape[0] - 1
+        bottom = top + data.shape[1] - 1
         node = QuadNode(left, right, top, bottom)
 
         if np.all(data == data[0, 0]):
             node.value = data[0, 0]
-            self.obj_cluster[node.value] = (left, right, top, bottom)
+            self.obj_cluster[node.value].append((left, right, top, bottom))
             return node
 
         if depth == 0:
-            self.obj_cluster['chunks'] = (left, right, top, bottom)
+            self.obj_cluster['chunks'].append((left, right, top, bottom), data[left:right+1, top:bottom+1])
             return node
 
         n, m = data.shape
@@ -93,58 +94,75 @@ class ObjectMask:
         return node
 
     def check(self, obj_nr, points, reduced=False):
-        """docstring"""
+        """
+        Check if a list of points is in a given object individually
+        Inputs: Number of object, list of points to check, output-parameter
+        Output: If reduced=False: Boolean list of answers
+                If reduced=True: List with the points which are inside of the object
+        """
 
         if self.root is None:
             self.read()
 
         inside = [] * len(points)
         for i, point in enumerate(points):
-            inside[i] = self.__point_in_obj(point, obj_nr)
+            inside[i] = self.__point_in_obj(obj_nr, point)
 
         if reduced:
             return points[inside]
         return inside
 
-    def __point_in_obj(self, point, obj_nr):
-        """docstring"""
+    def __point_in_obj(self, obj_nr, point):
+        """
+        Check if a single point is inside a given object
+        Inputs: Number of object, point to check
+        Output: Boolean parameter
+        """
 
-        inside = False
         x, y = point
         for cluster_coords in self.obj_cluster[obj_nr]:
             left, right, top, bottom = cluster_coords
             if left <= x <= right and top <= y <= bottom:
-                inside = True
-                break
+                return True
 
-        return inside
+        for chunk_coords, chunk in self.obj_cluster['chunks']:
+            left, right, top, bottom = chunk_coords
+            if chunk[x-left, y-top] == obj_nr:
+                return True
 
-    # def rundown(self, node, point):
-    #     """Find the value for a given point"""
-    #     if node.lr == None:
-    #         return node.value, (node.tr, node.br, node.tl, node.bl)
-    #     else:
-    #         x_mean = (node.bl + node.br) // 2
-    #         y_mean = (node.tl + node.tr) // 2
-    #         if point <= x_mean:
-    #             if point <= y_mean:
-    #                 return rundown(node.nw, point)
-    #             else:
-    #                 return rundown(node.SW, point)
-    #         else:
-    #             if point <= y_mean:
-    #                 return rundown(node.ne, point)
-    #             else:
-    #                 return rundown(node.se, point)
+        return False
 
-    def extract(self, obj):
-        pass
+    def extract(self, obj_nr, path):
+        """
+        Extract all values belonging to obj_nr from the grayvalue image
+        Inputs: Number of object, path of grayvalue image
+        Output: Dictionary containing (key,value) pairs of (grayvalue, count)
+        """
+
+        with h5py.File(path, "r") as f:
+            gray_img = f[""]  # was muss hier rein
+
+        array = np.array([])
+        for cluster_coords in self.obj_cluster[obj_nr]:
+            left, right, top, bottom = cluster_coords
+            gray_cluster = gray_img[left:right+1, top:bottom+1]
+            array = np.append(array, gray_cluster.flatten())
+
+        for cluster_coords in self.obj_cluster['chunks']:
+            left, right, top, bottom = cluster_coords
+            cluster = self.data[left:right+1, top:bottom+1]
+            mask = cluster == obj_nr
+            gray_cluster = gray_img[mask]
+            array = np.append(array, gray_cluster)
+
+        unique, counts = np.unique(array, return_counts=True)
+        return dict(zip(unique, counts))
 
     def output_json(self, obj):
         pass
 
-    def output_hdf5(self, obj):
-        pass
+    def output_hdf5(self):
+        return self.data
 
     def json_to_hdf5(self, file):
         pass
