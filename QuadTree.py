@@ -9,14 +9,13 @@ import shapely.affinity
 class ObjectMask:
     root = None
     data = None
+    obj_cluster = {'chunks': []}
 
-    def __init__(self, path, obj_count=1):
+    def __init__(self, path):
         self.path = path
         format = path.split(".")[-1]
         assert format in {"json", "hdf5"}, "Wrong datatype."
         self.format = format
-        self.obj_cluster = {i: [] for i in range(obj_count)}
-        self.obj_cluster['chunks'] = []
 
     def read(self):
         if self.format == "json":
@@ -52,7 +51,7 @@ class ObjectMask:
                [(hn + n // 2, hm + m // 2)] + \
                self.__make_grid(n // 2, m // 2, (hn + n // 2, hm + m // 2))
 
-    def __create_tree(self, data, hinge, depth=20):
+    def __create_tree(self, data, hinge, depth=10):
         left, top = hinge
         right = left + data.shape[0] - 1
         bottom = top + data.shape[1] - 1
@@ -60,16 +59,19 @@ class ObjectMask:
 
         n, m = data.shape
         if n <= 2 or m <= 2:
-            self.obj_cluster['chunks'].append((left, right, top, bottom), data[left:right+1, top:bottom+1])
+            self.obj_cluster['chunks'].append(((left, right, top, bottom), data[left:right+1, top:bottom+1]))
             return node
 
         if np.all(data == data[0, 0]):
             node.value = data[0, 0]
-            self.obj_cluster[node.value].append((left, right, top, bottom))
+            if node.value in self.obj_cluster.keys():
+                self.obj_cluster[node.value].append((left, right, top, bottom))
+            else:
+                self.obj_cluster[node.value] = [(left, right, top, bottom)]
             return node
 
         if depth == 0:
-            self.obj_cluster['chunks'].append((left, right, top, bottom), data[left:right+1, top:bottom+1])
+            self.obj_cluster['chunks'].append(((left, right, top, bottom), data[left:right+1, top:bottom+1]))
             return node
 
         node.NW = self.__create_tree(data[:n // 2, :m // 2], (left, top), depth - 1)
