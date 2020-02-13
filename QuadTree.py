@@ -65,7 +65,7 @@ class ObjectMask:
 
         n, m = data.shape
         if n <= 2 or m <= 2:
-            self.obj_cluster['chunks'].append(((left, right, top, bottom), data[left:right+1, top:bottom+1]))
+            self.obj_cluster['chunks'].append(((left, right, top, bottom), data))
             node.value = data[left:right+1, top:bottom+1]
             return node
 
@@ -78,7 +78,7 @@ class ObjectMask:
             return node
 
         if depth == 0:
-            self.obj_cluster['chunks'].append(((left, right, top, bottom), data[left:right+1, top:bottom+1]))
+            self.obj_cluster['chunks'].append(((left, right, top, bottom), data))
             node.value = data[left:right + 1, top:bottom + 1]
             return node
 
