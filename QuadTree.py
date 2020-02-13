@@ -4,6 +4,8 @@ import numpy as np
 from shapely.geometry import Polygon
 import rasterio.features
 import shapely.affinity
+import multiprocessing
+from multiprocessing import Process
 
 
 class ObjectMask:
@@ -31,6 +33,7 @@ class ObjectMask:
         self.__read_hdf5()
 
     def __read_hdf5(self):
+
         f = h5py.File(self.path, 'r')
         self.data = f["data"]
         n, m = self.data.shape
@@ -62,6 +65,7 @@ class ObjectMask:
         n, m = data.shape
         if n <= 2 or m <= 2:
             self.obj_cluster['chunks'].append(((left, right, top, bottom), data[left:right+1, top:bottom+1]))
+            node.value = data[left:right+1, top:bottom+1]
             return node
 
         if np.all(data == data[0, 0]):
@@ -74,6 +78,7 @@ class ObjectMask:
 
         if depth == 0:
             self.obj_cluster['chunks'].append(((left, right, top, bottom), data[left:right+1, top:bottom+1]))
+            node.value = data[left:right + 1, top:bottom + 1]
             return node
 
         node.NW = self.__create_tree(data[:n // 2, :m // 2], (left, top), depth - 1)
@@ -106,21 +111,28 @@ class ObjectMask:
 
         return node
 
-    def check(self, obj_nr, points, reduced=False):
+    def check(self, obj_nr, points, reduced=False, mp=True):
         """
         Check if a list of points is in a given object individually
-        Inputs: Number of object, list of points to check, output-parameter
+        Inputs: Number of object, list of points to check, output-parameter, multiprocessing-parameter
         Output: If reduced=False: Boolean list of answers
                 If reduced=True: List with the points which are inside of the object
         """
+        if mp:
+            c = multiprocessing.cpu_count()
+            pool = multiprocessing.Pool(processes=c)
+            points_split = np.split(np.array(points), c)
+            return [pool.apply(self.check, args=(obj_nr, points_split[i], reduced, False)) for i in range(c)]
 
         if self.root is None:
             self.read()
 
-        inside = [None] * len(points)
+        inside = [False] * len(points)
         for i, point in enumerate(points):
             value = self.__rundown(self.root, point)
-            inside[i] = value == obj_nr
+            print("Checkvalue", value)
+            if value == obj_nr:
+                inside[i] = True
 
         if reduced:
             return points[inside]
@@ -132,13 +144,15 @@ class ObjectMask:
         Inputs: Current node to propagate, point to check
         Output:
         """
+
         left, right, top, bottom = node.left, node.right, node.top, node.bottom
         x, y = point
         if node.NW is None:
-            if node.value is None:
-                return chunk[x-left, y-top]
-            else:
+            print("hi", node.value)
+            if type(node.value) is not None:
                 return node.value
+            else:
+                return node.value[x-left, y-top]
         else:
             x_mean = (left + right) // 2
             y_mean = (top + bottom) // 2

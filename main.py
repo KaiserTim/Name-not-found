@@ -2,27 +2,38 @@ import numpy as np
 import QuadTree
 import time
 
+
+def cluster_indices(hinge, width, height):
+    """
+    Create a list of indices of a rectangle
+    Inputs: The top-left corner of the rectangle, its width, its height
+    Output: List of tuples containing the indices
+    """
+
+    x, y = hinge
+    a, b = np.indices((width, height))
+    return list(zip(x + a.flatten(), y + b.flatten()))
+
+
 if __name__ == '__main__':
     start_time = time.time()
     print("Start")
     path = "data/hdf5_image/B01_0361_annotations_si_spacing1.hdf5"
     quadtree = QuadTree.ObjectMask(path=path)
     quadtree.read()
-    # Generate a rectangle of indices
+
     print("Tree constructed after", time.time() - start_time, "s")
-    n, m = 10000, 1000
-    x_offset = quadtree.data.shape[0]//2
-    y_offset = quadtree.data.shape[1]//2
-    a = []
-    for i in range(x_offset, x_offset + m):
-        for j in range(y_offset, y_offset + n):
-            a.append(i)
-    b = list(range(x_offset, x_offset + n))*m
-    points = list(zip(b,a))
-
+    # Generate a rectangle of indices
+    # hinge = (5449, 32290)
+    hinge = (58699, 26790)
+    width, height = 1, 1
+    points = cluster_indices(hinge=hinge, width=width, height=height)
     # points = np.load("points/B01_0361_annotations_si_spacing1.npz", allow_pickle=True)["arr_0"]
-    print(points[:10])
-
-    print(np.any(quadtree.check(obj_nr=1, points=points)))
+    print(points)
+    check_result = quadtree.check(obj_nr=1, points=points)
+    print(np.any(check_result))
     print("Points checked after", time.time()-start_time, "s")
+    print(quadtree.obj_cluster[1])
+    print(len(quadtree.obj_cluster[1]))
+
 
