@@ -65,7 +65,12 @@ class ObjectMask:
 
     def check(self, obj_nr, points, reduced=False):
 
-        """docstring"""
+        """
+        Check if a list of points is inside a given object individually
+        Inputs: Number of object, list of points, output-parameter
+        Output: reduced=False: Boolean list with results
+                reduced=True : List of points which are inside of the object
+        """
 
         if self.root is None:
             self.read()
@@ -78,9 +83,13 @@ class ObjectMask:
             return points[inside]
         return inside
 
-    def __point_in_obj(self, point, obj_nr):
+    def __point_in_obj(self, obj_nr, point):
 
-        """docstring"""
+        """
+        Check if a single point is inside of a given object
+        Inputs: Point as tuple of coordinates, number of object
+        Ouput: Result as boolean variable
+        """
 
         inside = False
         x, y = point
@@ -112,8 +121,9 @@ class ObjectMask:
 
     def extract(self, obj_nr, path):
 
-        """Extract all values belonging to Obj_nr from the grayvalue image
-        Inputs: Number of Object, path of grayvalue image
+        """
+        Extract all values belonging to obj_nr from the grayvalue image
+        Inputs: Number of object, path of grayvalue image
         Output: Dictionary containing (key,value) pairs of (grayvalue, count)
         """
 
