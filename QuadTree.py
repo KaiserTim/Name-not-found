@@ -95,21 +95,30 @@ class ObjectMask:
         return node
 
     def check(self, obj_nr, points, reduced=False):
-        """docstring"""
+        """
+        Check if a list of points is in a given object individually
+        Inputs: Number of object, list of points to check, output-parameter
+        Output: If reduced=False: Boolean list of answers
+                If reduced=True: List with the points which are inside of the object
+        """
 
         if self.root is None:
             self.read()
 
         inside = [] * len(points)
         for i, point in enumerate(points):
-            inside[i] = self.__point_in_obj(point, obj_nr)
+            inside[i] = self.__point_in_obj(obj_nr, point)
 
         if reduced:
             return points[inside]
         return inside
 
-    def __point_in_obj(self, point, obj_nr):
-        """docstring"""
+    def __point_in_obj(self, obj_nr, point):
+        """
+        Check if a single point is inside a given object
+        Inputs: Number of object, point to check
+        Output: Boolean parameter
+        """
 
         inside = False
         x, y = point
@@ -120,6 +129,7 @@ class ObjectMask:
                 break
 
         for chunk_coords, chunk in self.obj_cluster['chunks']:
+            left, right, top, bottom = chunk_coords
             if chunk[x-left, y-top] == obj_nr:
                 inside = True
                 break
@@ -127,7 +137,6 @@ class ObjectMask:
         return inside
 
     def extract(self, obj_nr, path):
-
         """
         Extract all values belonging to obj_nr from the grayvalue image
         Inputs: Number of object, path of grayvalue image
