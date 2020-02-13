@@ -32,15 +32,15 @@ class ObjectMask:
     def __read_hdf5(self):
         with h5py.File(self.path, 'r') as f:
             self.data = f["data"]
-        n, m = self.data.shape
-        grid = [(0, 0)] + self.__make_grid(n, m) + [(n, m)]
-        trees = []
-        for i in range(len(grid) - 1):
-            tmp = []
-            for j in range(len(grid) - 1):
-                tmp.append(self.__create_tree(self.data[grid[i]:grid[i + 1], grid[j]:grid[j + 1]], (grid[i], grid[j])))
-            trees.append(tmp)
-        self.root = self.__merge_trees(np.array(trees))
+            n, m = self.data.shape
+            grid = [(0, 0)] + self.__make_grid(n, m) + [(n, m)]
+            trees = []
+            for i in range(len(grid) - 1):
+                tmp = []
+                for j in range(len(grid) - 1):
+                    tmp.append(self.__create_tree(self.data[grid[i]:grid[i + 1], grid[j]:grid[j + 1]], (grid[i], grid[j])))
+                trees.append(tmp)
+            self.root = self.__merge_trees(np.array(trees))
 
     def __make_grid(self, n, m, hinge=(0, 0), max_size=1000):
         hn, hm = hinge
