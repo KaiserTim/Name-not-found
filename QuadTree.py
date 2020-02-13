@@ -37,26 +37,29 @@ class ObjectMask:
     def json_to_hdf5(self, size=None, step_size=100):
         path = self.path
         output_path = path[:-5] + '_hdf5fromjson.hdf5'
-        f = h5py.File(output_path, "w")
-        mask = f.create_dataset("maskdataset", (size,size))
+
         with open(path) as json_file:
             polygon_dict = json.load(json_file)
         if size == None:
             lyst = [polygon_dict[i]['polygon'] for i in range(len(polygon_dict))]
             size = int(np.max(np.array(np.max(lyst))[:, 0])*1.2)
-        if step_size < size:
+        if step_size > size:
             step_size = size
-        for i in range(size//step_size):
-            for j in range(len(polygon_dict)):
-                polygon = Polygon(polygon_dict[j]['polygon'])
+        f = h5py.File(output_path, "w")
+        mask = f.create_dataset("maskdataset", (size, size))
+        for j in range(len(polygon_dict)):
+            polygon = Polygon(polygon_dict[j]['polygon'])
+            for i in range(size//step_size):
                 sub_polygon = shapely.affinity.translate(polygon, xoff=-step_size*i)
                 sub_grid = rasterio.features.rasterize([(sub_polygon,1)], out_shape = (size,step_size))
                 mask[:,step_size*i:step_size*(i+1)] = sub_grid
+                print(i)
 
+        f.close()
     def hdf5_to_json(self, file):
        pass
 
 
 if __name__ == '__main__':
-    bowtie = ObjectMask('/home/steven/PycharmProjects/Name-not-found/data/json/bowtie.json')
-    bowtie.json_to_hdf5(10, 10)
+    bowtie = ObjectMask('/home/steven/PycharmProjects/Name-not-found/data/json/B01_0361_annotations.json')
+    bowtie.json_to_hdf5(step_size=100)
