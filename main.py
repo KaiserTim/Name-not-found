@@ -26,11 +26,11 @@ if __name__ == '__main__':
     # Generate a rectangle of indices
     # hinge = (5449, 32290)
     hinge = (58699, 26790)
-    width, height = 1, 1
+    width, height = 1000, 1000
     points = cluster_indices(hinge=hinge, width=width, height=height)
     # points = np.load("points/B01_0361_annotations_si_spacing1.npz", allow_pickle=True)["arr_0"]
-    print(points)
-    check_result = quadtree.check(obj_nr=1, points=points)
+    # print(points)
+    check_result = quadtree.check(obj_nr=1, points=points, mp=False)
     print(np.any(check_result))
     print("Points checked after", time.time()-start_time, "s")
     print(quadtree.obj_cluster[1])

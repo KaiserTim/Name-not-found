@@ -5,6 +5,7 @@ from shapely.geometry import Polygon
 import rasterio.features
 import shapely.affinity
 import multiprocessing
+import multiprocessing.pool
 from multiprocessing import Process
 
 
@@ -119,9 +120,12 @@ class ObjectMask:
                 If reduced=True: List with the points which are inside of the object
         """
         if mp:
-            c = multiprocessing.cpu_count()
-            pool = multiprocessing.Pool(processes=c)
-            points_split = np.split(np.array(points), c)
+            c, n = multiprocessing.cpu_count(), len(points)
+            assert n >=c, "Please specify mp=False if the number of CPU cores exceeds the number of points"
+            overhang = n % (c-1)
+            pool = multiprocessing.pool.ThreadPool(c)
+            points_split = np.split(np.array(points[:-overhang]), c-1)
+            points_split.append(np.array(points[-overhang:]))
             return [pool.apply(self.check, args=(obj_nr, points_split[i], reduced, False)) for i in range(c)]
 
         if self.root is None:
@@ -130,7 +134,7 @@ class ObjectMask:
         inside = [False] * len(points)
         for i, point in enumerate(points):
             value = self.__rundown(self.root, point)
-            print("Checkvalue", value)
+            # print("Checkvalue", value)
             if value == obj_nr:
                 inside[i] = True
 
@@ -148,7 +152,7 @@ class ObjectMask:
         left, right, top, bottom = node.left, node.right, node.top, node.bottom
         x, y = point
         if node.NW is None:
-            print("hi", node.value)
+            # print("hi", node.value)
             if type(node.value) is not None:
                 return node.value
             else:
