@@ -191,7 +191,7 @@ class ObjectMask:
             polygon_dict = json.load(json_file)
         if size is None:
             lyst = [polygon_dict[i]['polygon'] for i in range(len(polygon_dict))]
-            size = int(np.max(np.array(np.max(lyst))[:, 0])*1.2)
+            size = int(np.max(np.array(np.max(lyst)))*1.2)
         if step_size > size:
             step_size = size
         f = h5py.File(output_path, "w")
@@ -201,7 +201,7 @@ class ObjectMask:
             for i in range(size//step_size):
                 sub_polygon = shapely.affinity.translate(polygon, xoff=-step_size*i)
                 sub_grid = rasterio.features.rasterize([(sub_polygon, 1)], out_shape=(size, step_size))
-                mask[:, step_size*i:step_size*(i+1)] += sub_grid
+                mask[:, step_size*i:step_size*(i+1)] = sub_grid
 
         f.close()
 
