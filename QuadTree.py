@@ -1,7 +1,6 @@
 import h5py
 import numpy as np
 
-
 class ObjectMask:
     root = None
     data = None
@@ -116,6 +115,11 @@ class ObjectMask:
         for cluster_coords in self.obj_cluster[obj_nr]:
             left, right, top, bottom = cluster_coords
             if left <= x <= right and top <= y <= bottom:
+                inside = True
+                break
+
+        for chunk in self.obj_cluster['chunks']:
+            if chunk[x, y] == obj_nr:
                 inside = True
                 break
 
