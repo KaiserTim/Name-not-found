@@ -1,3 +1,5 @@
+import numpy as np
+
 import QuadTree
 import time
 
@@ -18,6 +20,7 @@ if __name__ == '__main__':
     b = list(range(x_offset, x_offset + n))*m
     points = list(zip(b,a))
     print(points[:10])
+    points = np.load("B01_0361_annotations_si_spacing1.npz", allow_pickle=True)["arr_0"]
 
     print(quadtree.check(obj_nr=1, points=points))
     print("Points checked", time.time()-start_time)
