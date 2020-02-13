@@ -22,7 +22,9 @@ class ObjectMask:
         # __read_json bzw. __read_hdf5
 
     def __read_json(self):
-       pass
+       self.json_to_hdf5()
+       self.path = path[:-5] + '_hdf5fromjson.hdf5'
+       self.__read_hdf5()
     def extract(self, obj):
         pass
 
@@ -32,13 +34,18 @@ class ObjectMask:
     def output_hdf5(self, obj):
         pass
 
-    def json_to_hdf5(self, size, step_size):
+    def json_to_hdf5(self, size=None, step_size=100):
         path = self.path
         output_path = path[:-5] + '_hdf5fromjson.hdf5'
         f = h5py.File(output_path, "w")
         mask = f.create_dataset("maskdataset", (size,size))
         with open(path) as json_file:
             polygon_dict = json.load(json_file)
+        if size == None:
+            lyst = [polygon_dict[i]['polygon'] for i in range(len(polygon_dict))]
+            size = int(np.max(np.array(np.max(lyst))[:, 0])*1.2)
+        if step_size < size:
+            step_size = size
         for i in range(size//step_size):
             for j in range(len(polygon_dict)):
                 polygon = Polygon(polygon_dict[j]['polygon'])
